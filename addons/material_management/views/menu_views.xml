@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Root Menu: Material Management -->
+        <menuitem id="menu_material_root"
+                  name="Materials"
+                  web_icon="base,static/description/icon.png"
+                  sequence="20"/>
+
+        <!-- Main Category Menu -->
+        <menuitem id="menu_material_management"
+                  name="Master Data"
+                  parent="menu_material_root"
+                  sequence="10"/>
+
+        <!-- Action Item Menu: Materials -->
+        <menuitem id="menu_material_material_action"
+                  name="Materials"
+                  parent="menu_material_management"
+                  action="action_material_material"
+                  sequence="10"/>
+
+    </data>
+</odoo>

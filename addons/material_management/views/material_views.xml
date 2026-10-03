@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ========================================================= -->
+        <!-- 1. TREE / LIST VIEW                                       -->
+        <!-- ========================================================= -->
+        <record id="view_material_material_tree" model="ir.ui.view">
+            <field name="name">material.material.tree</field>
+            <field name="model">material.material</field>
+            <field name="arch" type="xml">
+                <tree string="Materials" sample="1">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="material_type"/>
+                    <field name="buy_price"/>
+                    <field name="supplier_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- ========================================================= -->
+        <!-- 2. FORM VIEW                                              -->
+        <!-- ========================================================= -->
+        <record id="view_material_material_form" model="ir.ui.view">
+            <field name="name">material.material.form</field>
+            <field name="model">material.material</field>
+            <field name="arch" type="xml">
+                <form string="Material Registration">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only" string="Material Name"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. Denim Raw 14oz"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Identifikasi Material">
+                                <field name="code" placeholder="e.g. MAT-001"/>
+                                <field name="material_type" widget="radio" options="{'horizontal': true}"/>
+                            </group>
+                            <group string="Finansial &amp; Supplier">
+                                <field name="buy_price"/>
+                                <field name="supplier_id" options="{'no_create_edit': True}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- ========================================================= -->
+        <!-- 3. SEARCH & FILTER VIEW                                   -->
+        <!-- ========================================================= -->
+        <record id="view_material_material_search" model="ir.ui.view">
+            <field name="name">material.material.search</field>
+            <field name="model">material.material</field>
+            <field name="arch" type="xml">
+                <search string="Search Materials">
+                    <!-- Search fields -->
+                    <field name="name" string="Material Name / Code"
+                           filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                    <field name="code"/>
+                    <field name="supplier_id"/>
+
+                    <!-- Filter by Material Type (Fabric, Jeans, Cotton) -->
+                    <separator/>
+                    <filter string="Fabric" name="filter_fabric" domain="[('material_type', '=', 'fabric')]"/>
+                    <filter string="Jeans" name="filter_jeans" domain="[('material_type', '=', 'jeans')]"/>
+                    <filter string="Cotton" name="filter_cotton" domain="[('material_type', '=', 'cotton')]"/>
+
+                    <!-- Group By -->
+                    <group expand="0" string="Group By">
+                        <filter string="Material Type" name="group_by_type" context="{'group_by': 'material_type'}"/>
+                        <filter string="Supplier" name="group_by_supplier" context="{'group_by': 'supplier_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ========================================================= -->
+        <!-- 4. ACTION WINDOW                                          -->
+        <!-- ========================================================= -->
+        <record id="action_material_material" model="ir.actions.act_window">
+            <field name="name">Materials</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">material.material</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_material_material_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Daftarkan material baru untuk dijual!
+                </p>
+                <p>
+                    Kelola informasi material seperti kode, nama, tipe material (Fabric, Jeans, Cotton), harga beli, dan supplier terkait.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
