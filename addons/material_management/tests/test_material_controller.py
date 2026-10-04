@@ -1,36 +1,40 @@
 # -*- coding: utf-8 -*-
 import json
-import urllib.request
-from odoo.tests.common import HttpCase
+import odoo
+from odoo.tests.common import HttpCase, tagged, HOST
 
 
+@tagged('-at_install', 'post_install')
 class TestMaterialController(HttpCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestMaterialController, cls).setUpClass()
+    def setUp(self):
+        super(TestMaterialController, self).setUp()
         # Setup supplier rekanan
-        cls.supplier = cls.env['res.partner'].create({
+        self.supplier = self.env['res.partner'].create({
             'name': 'PT Garment Indah Perkasa',
-            'supplier_rank': 1,
             'email': 'garment@indahperkasa.com',
         })
 
     def _make_http_request(self, path, method='GET', data=None):
         """Helper untuk eksekusi HTTP request ke controller."""
-        url = f'{self.base_url()}{path}'
-        headers = {'Content-Type': 'application/json'}
-        encoded_data = json.dumps(data).encode('utf-8') if data else None
+        self.env['base'].flush()
+        if path.startswith('/'):
+            url = f"http://{HOST}:{odoo.tools.config['http_port']}{path}"
+        else:
+            url = path
 
-        req = urllib.request.Request(url, data=encoded_data, headers=headers, method=method)
+        headers = {}
+        encoded_data = None
+        if data is not None:
+            headers['Content-Type'] = 'application/json'
+            encoded_data = json.dumps(data)
+
+        response = self.opener.request(method, url, data=encoded_data, headers=headers)
         try:
-            response = urllib.request.urlopen(req)
-            resp_code = response.getcode()
-            resp_body = json.loads(response.read().decode('utf-8'))
-            return resp_code, resp_body
-        except urllib.error.HTTPError as e:
-            err_body = json.loads(e.read().decode('utf-8')) if e.fp else {}
-            return e.code, err_body
+            resp_body = response.json()
+        except Exception:
+            resp_body = response.text
+        return response.status_code, resp_body
 
     def test_01_api_create_material_success(self):
         """Memastikan API POST /api/v1/materials berhasil membuat material."""
@@ -140,5 +144,6 @@ class TestMaterialController(HttpCase):
         self.assertEqual(body.get('status'), 'success')
 
         # Cek database apakah record sudah terhapus
+        self.env['material.material'].invalidate_cache()
         deleted = self.env['material.material'].browse(mat_id)
         self.assertFalse(deleted.exists())

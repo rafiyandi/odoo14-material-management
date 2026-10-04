@@ -1,0 +1,46 @@
+# ==============================================================================
+# Git Ignore Configuration
+# ==============================================================================
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Agent & AI internal configurations (do not publish to public repo)
+.agents/
+.ai/
+**/.ai/
+
+# IDE & Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+env/
+venv/
+ENV/
+
+# Odoo runtime files & logs
+*.log
+odoo.log
+filestore/
+sessions/

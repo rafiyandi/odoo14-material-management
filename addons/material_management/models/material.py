@@ -42,7 +42,6 @@ class Material(models.Model):
         string='Related Supplier',
         required=True,
         ondelete='restrict',
-        domain="[('supplier_rank', '>', 0)]",
         help='Supplier rekanan penyedia material ini.',
     )
 
@@ -58,6 +57,22 @@ class Material(models.Model):
             'Material Buy Price tidak boleh kurang dari 100!',
         ),
     ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Validasi harga beli sebelum persist ke database."""
+        for vals in vals_list:
+            if 'buy_price' in vals and vals['buy_price'] is not None:
+                try:
+                    price = float(vals['buy_price'])
+                except (ValueError, TypeError):
+                    price = 0.0
+                if price < 100:
+                    raise ValidationError(
+                        _('Material Buy Price tidak boleh bernilai kurang dari 100 (Nilai saat ini: %s).')
+                        % vals.get('buy_price')
+                    )
+        return super(Material, self).create(vals_list)
 
     @api.constrains('buy_price')
     def _check_buy_price(self):

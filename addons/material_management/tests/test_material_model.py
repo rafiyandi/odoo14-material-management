@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, tagged
 from odoo.exceptions import ValidationError
 from odoo.tools import mute_logger
 
 
+@tagged('at_install', 'post_install')
 class TestMaterialModel(TransactionCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestMaterialModel, cls).setUpClass()
+    def setUp(self):
+        super(TestMaterialModel, self).setUp()
         # Setup supplier rekanan
-        cls.supplier = cls.env['res.partner'].create({
+        self.supplier = self.env['res.partner'].create({
             'name': 'PT Mitra Tekstil Sejahtera',
-            'supplier_rank': 1,
             'email': 'supplier@mitratekstil.com',
         })
 

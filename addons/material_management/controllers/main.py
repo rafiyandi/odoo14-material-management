@@ -9,17 +9,31 @@ _logger = logging.getLogger(__name__)
 
 VALID_MATERIAL_TYPES = ['fabric', 'jeans', 'cotton']
 
+# Monkey-patch http.Root.get_request agar REST API (/api/) tidak diintersepsi
+# oleh JsonRequest (Odoo JSON-RPC 2.0) ketika client mengirim Content-Type: application/json.
+_original_get_request = http.Root.get_request
+
+
+def _custom_get_request(self, httprequest):
+    if httprequest.path.startswith('/api/'):
+        return http.HttpRequest(httprequest)
+    return _original_get_request(self, httprequest)
+
+
+http.Root.get_request = _custom_get_request
+
 
 def _json_response(data, status=200):
     """Utility helper untuk mengembalikan response JSON berstandar HTTP."""
-    return request.make_response(
+    response = request.make_response(
         json.dumps(data),
         headers=[
             ('Content-Type', 'application/json; charset=utf-8'),
             ('Cache-Control', 'no-store'),
         ],
-        status=status,
     )
+    response.status_code = status
+    return response
 
 
 def _error_response(message, status=400, errors=None):
@@ -38,7 +52,7 @@ class MaterialController(http.Controller):
     def _parse_body(self):
         """Helper untuk membaca payload JSON dari HTTP request."""
         try:
-            raw_data = request.httprequest.data
+            raw_data = request.httprequest.get_data() or request.httprequest.data
             if not raw_data:
                 return {}
             return json.loads(raw_data.decode('utf-8'))
